@@ -3,7 +3,15 @@
  *
  * GENERATED from the device's own firmware: the [MemoryMap] and [RegisterMap] sections of
  * uefiplat.cfg, extracted from uefi.img of the OTA OS3.0.305.0.WFSINXM.
- * This replaces garnet's MemoryMapLib.c -- the two differ (notably the UEFI FD base and size).
+ *
+ * One deliberate change from the raw config, matching how garnet does it: the device reserves
+ * "UEFI FD" 0xA7000000/0x400000 as a single window, but Mu-Silicium carves 0x100000 off the
+ * front for "FD Reserved" and builds its own FD immediately after. PlatformPeiLib/XblProtocols.c
+ * scans "FD Reserved" instruction by instruction to recover the XBL scheduler and DTB-extension
+ * HOBs, so our image must not sit on top of it.
+ *
+ *   FD Reserved  0xA7000000, 0x00100000   <- scanned for XBL HOBs
+ *   UEFI FD      0xA7100000, 0x00300000   <- our firmware (0xA7100000 + 0x300000 = 0xA7400000)
  */
 #include <Library/MemoryMapLib.h>
 
@@ -11,15 +19,20 @@ STATIC
 EFI_MEMORY_REGION_DESCRIPTOR
 gMemoryDescriptor[] = {
   // Name, Address, Length, HobOption, ResourceType, ResourceAttribute, MemoryType, ArmAttribute
+  // NOTE: ruan's uefiplat.cfg says "AddDynamicMem" for TZApps Reserved and HYP Reserved, but
+  // this Mu-Silicium tree has no such HobOption (see MemoryMapLib.h: NoHob/AddMem/AddDev/
+  // HobOnlyNoCacheSetting/AllocOnly/MaxMem). Mapped to AddMem, which is what the value
+  // means for our purposes: add to the memory map.
 
   // --- DDR (from uefiplat.cfg [MemoryMap]) ---
   {"AOP", 0x80800000, 0x000A0000, AddMem, MEM_RES, UNCACHEABLE, Reserv, UNCACHED_UNBUFFERED_XN},
   {"SMEM", 0x80900000, 0x00200000, AddMem, MEM_RES, UNCACHEABLE, Reserv, UNCACHED_UNBUFFERED_XN},
-  {"Ramoops", 0x80D00000, 0x00200000, AddMem, SYS_MEM, SYS_MEM_CAP, Reserv, WRITE_BACK_XN},
+  {"Ramoops", 0X80D00000, 0x00200000, AddMem, SYS_MEM, SYS_MEM_CAP, Reserv, WRITE_BACK_XN},
   {"PIL Reserved", 0x84B00000, 0x1AA00000, AddMem, MEM_RES, UNCACHEABLE, Reserv, UNCACHED_UNBUFFERED_XN},
   {"Display Demura", 0xA1400000, 0x02B00000, AddMem, MEM_RES, SYS_MEM_CAP, Reserv, WRITE_THROUGH_XN},
   {"DBI Dump", 0xA6000000, 0x00F00000, NoHob, MMAP_IO, INITIALIZED, Conv, UNCACHED_UNBUFFERED_XN},
-  {"UEFI FD", 0xA7000000, 0x00400000, AddMem, SYS_MEM, SYS_MEM_CAP, BsData, WRITE_BACK},
+  {"FD Reserved", 0xA7000000, 0x00100000, AddMem, SYS_MEM, SYS_MEM_CAP, BsData, WRITE_BACK},
+  {"UEFI FD", 0xA7100000, 0x00300000, AddMem, SYS_MEM, SYS_MEM_CAP, BsData, WRITE_BACK},
   {"UEFI FD Reserved", 0xA7400000, 0x00200000, AddMem, SYS_MEM, SYS_MEM_CAP, BsData, WRITE_BACK},
   {"CPU Vectors", 0xA7600000, 0x00001000, AddMem, SYS_MEM, SYS_MEM_CAP, BsData, WRITE_BACK},
   {"Info Blk", 0xA7601000, 0x00001000, AddMem, SYS_MEM, SYS_MEM_CAP, RtData, WRITE_BACK_XN},

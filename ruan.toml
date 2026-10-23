@@ -1,7 +1,20 @@
 #
 # ruan -- Redmi Pad Pro 5G (SM7435 "parrot")
-# uefi_fd values taken from the device's own uefiplat.cfg: "UEFI FD" 0xA7000000 size 0x400000
-# (garnet is 0xA7100000 / 0x300000).
+#
+# The device's uefiplat.cfg reserves one window:
+#   "UEFI FD"  0xA7000000, 0x00400000
+#   "UEFI FD Reserved" 0xA7400000, 0x00200000
+#
+# Mu-Silicium does NOT build into that raw window. It carves 0x100000 off the front for its own
+# "FD Reserved" region -- which PlatformPeiLib/XblProtocols.c scans instruction-by-instruction to
+# recover the XBL scheduler and DTB-extension HOBs -- and places its FD immediately after:
+#
+#   FD Reserved 0xA7000000, 0x00100000   <- scanned for XBL HOBs, must be clear of our image
+#   UEFI FD     0xA7100000, 0x00300000   <- our firmware  (0xA7100000 + 0x300000 = 0xA7400000)
+#
+# garnet does exactly this (its uefiplat.cfg also says 0xA7000000/0x400000). Building at the raw
+# 0xA7000000 overwrites the region PEI scans, so PEI finds no HOBs and the platform dies before
+# any display init -- which is what a POCO-logo-then-black-screen looks like.
 #
 [boot_shim]
 requires_kernel_header = true
@@ -10,8 +23,8 @@ requires_kernel_header = true
 # UEFI FD Configs
 #
 [uefi_fd]
-base = 0xA7000000
-size = 0x400000
+base = 0xA7100000
+size = 0x300000
 
 #
 # Android Boot Image Kernel Configs
