@@ -1,0 +1,18 @@
+##
+# ruan -- QcomChargerApp
+# Generated from the device's own firmware (OS3.0.305.0.WFSINXM).
+# FILE_GUID and the PE image are the shipping firmware's, byte for byte.
+##
+[Defines]
+  INF_VERSION                    = 0x0001001B
+  BASE_NAME                      = QcomChargerApp
+  FILE_GUID                      = EEE9C2B1-16CA-4F34-87EA-2E6D1E160CC4
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = EfiEntry
+
+[Binaries.AARCH64]
+  PE32|QcomChargerApp.efi|*
+
+[Depex]
+  TRUE

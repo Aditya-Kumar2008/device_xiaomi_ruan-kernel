@@ -1,0 +1,18 @@
+##
+# ruan -- FvSimpleFileSystem
+# Generated from the device's own firmware (OS3.0.305.0.WFSINXM).
+# FILE_GUID and the PE image are the shipping firmware's, byte for byte.
+##
+[Defines]
+  INF_VERSION                    = 0x0001001B
+  BASE_NAME                      = FvSimpleFileSystem
+  FILE_GUID                      = 907125C0-A5F1-11E3-A3FE-A3198B49350C
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = EfiEntry
+
+[Binaries.AARCH64]
+  PE32|FvSimpleFileSystem.efi|*
+
+[Depex]
+  TRUE

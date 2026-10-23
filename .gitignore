@@ -1,0 +1,7 @@
+*.o
+*.obj
+*.dll
+*.pdb
+*.map
+Build/
+Conf/

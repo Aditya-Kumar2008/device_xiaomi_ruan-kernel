@@ -1,0 +1,11 @@
+##
+# ruan (Redmi Pad Pro 5G, SM7435 "parrot")
+#
+# Generated from the device's own firmware (OS3.0.305.0.WFSINXM).
+##
+[Defines]
+  DEC_SPECIFICATION              = 0x00010005
+  PACKAGE_NAME                   = ruanPkg
+  PACKAGE_UNI_FILE               = ruan.uni
+  PACKAGE_GUID                   = C58473C0-5653-4201-A8FF-FF74468533AE
+  PACKAGE_VERSION                = 0.1
